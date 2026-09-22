@@ -13,30 +13,20 @@ public static class Dados
 	static readonly Dictionary<int, byte[]> s_terreno = new();
 	static readonly Dictionary<int, Bitmap> s_minimapa = new();
 
-	// mapa -> arquivo de terreno do servidor
+	// Update SSeMU 92 2.4.9 -> 97K SSeMU Update 93 (2.4.9) - Mapas 97K oficiais (0 a 16)
 	public static readonly string[] ArquivoTerreno =
 	{
 		"00 - Lorencia.att", "01 - Dungeon.att", "02 - Devias.att", "03 - Noria.att", "04 - Lost Tower.att",
 		"05 - Exile.att", "06 - Arena.att", "07 - Atlans.att", "08 - Tarkan.att", "09 - Devil Square.att",
 		"10 - Icarus.att", "11 - Blood Castle.att", "11 - Blood Castle.att", "11 - Blood Castle.att",
-		"11 - Blood Castle.att", "11 - Blood Castle.att", "11 - Blood Castle.att", "11 - Blood Castle.att",
-		"18 - Chaos Castle.att", "18 - Chaos Castle.att", "18 - Chaos Castle.att", "18 - Chaos Castle.att",
-		"18 - Chaos Castle.att", "18 - Chaos Castle.att", "24 - Kalima.att", "24 - Kalima.att",
-		"24 - Kalima.att", "24 - Kalima.att", "24 - Kalima.att", "24 - Kalima.att",
-		"30 - Valley of Loren.att", "31 - Land of Trials.att", "32 - Devil Square 2.att", "33 - Aida.att",
-		"34 - Crywolf Fortress.att", "35 - Crywolf Second Zone.att", "36 - Kalima 7.att",
-		"37 - Kanturu Ruins.att", "38 - Kanturu Relics.att", "39 - Kanturu Refinery Tower.att"
+		"11 - Blood Castle.att", "11 - Blood Castle.att", "11 - Blood Castle.att"
 	};
 
 	public static readonly string[] NomeMapa =
 	{
 		"Lorencia", "Dungeon", "Devias", "Noria", "Lost Tower", "Exile", "Arena", "Atlans", "Tarkan",
 		"Devil Square", "Icarus", "Blood Castle 1", "Blood Castle 2", "Blood Castle 3", "Blood Castle 4",
-		"Blood Castle 5", "Blood Castle 6", "Blood Castle 7", "Chaos Castle 1", "Chaos Castle 2",
-		"Chaos Castle 3", "Chaos Castle 4", "Chaos Castle 5", "Chaos Castle 6", "Kalima 1", "Kalima 2",
-		"Kalima 3", "Kalima 4", "Kalima 5", "Kalima 6", "Valley of Loren", "Land of Trials",
-		"Devil Square 2", "Aida", "Crywolf Fortress", "Crywolf 2", "Kalima 7", "Kanturu Ruins",
-		"Kanturu Relics", "Kanturu Refinery"
+		"Blood Castle 5", "Blood Castle 6"
 	};
 
 	// mapa do servidor -> pasta World do cliente (World = mapa + 1)
