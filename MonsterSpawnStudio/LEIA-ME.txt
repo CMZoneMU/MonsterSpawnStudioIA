@@ -1,0 +1,155 @@
+=====================================================================
+ MONSTERSPAWN STUDIO
+=====================================================================
+
+Editor dos arquivos de monstro do MuServer, com o mapa do jogo do lado
+para voce ver onde cada bicho nasce.
+
+ARQUIVOS QUE ELE ABRE (pasta Data\Monster)
+  MonsterSetBase.txt ......... monstros e spots do servidor normal
+  MonsterSetBaseCS.txt ....... monstros do servidor de Castle Siege
+  KanturuMonsterSetBase.txt .. monstros do Kanturu, por estado
+  Monster.txt ................ atributos de cada monstro (vida, dano...)
+
+
+PRIMEIRA VEZ
+  Arquivo > Abrir pasta do servidor...
+     aponte para C:\MuServer1.00.18\Data  (a pasta que tem Monster dentro)
+
+  Arquivo > Apontar a pasta Data do cliente...
+     aponte para a pasta Data do CLIENTE (a que tem World1, World2...).
+     E dela que vem o minimapa desenhado no fundo.
+
+  Os dois caminhos ficam gravados; nas proximas vezes ele abre sozinho.
+
+
+A TELA
+  Esquerda ... arvore: arquivo > secao > mapa
+  Centro ..... tabela para editar linha por linha
+  Baixo ...... conferencia (F5)
+  Direita .... mapa
+
+
+O MAPA
+  roda do mouse ........ zoom
+  botao do meio ........ arrastar
+  clique no ponto ...... seleciona a linha na tabela
+  arrastar o ponto ..... muda o X e o Y (a tabela acompanha)
+  clique no vazio ...... cria uma linha ali
+
+  O fundo e o minimapa do cliente, do mesmo jeito que o jogador ve.
+  Por cima vem o terreno do SERVIDOR:
+     vermelho = nao anda      azul = zona segura     amarelo = sem chao
+  As coordenadas embaixo do mapa sao as do jogo, iguais as do /move.
+
+  Nove mapas tem minimapa no cliente (Lorencia, Dungeon, Devias, Noria,
+  Lost Tower, Arena, Atlans, Tarkan e Icarus). Nos outros o fundo fica
+  claro e voce se guia pelas paredes.
+
+
+CRIAR E ADICIONAR
+
+  JEITO RAPIDO (o do dia a dia)
+     1. na arvore, escolha a secao e o mapa onde quer mexer
+     2. na lista MONSTROS (embaixo a esquerda), ache o monstro
+        - da para filtrar por nome ou pelo numero
+     3. deixe marcado "clique no mapa adiciona"
+     4. clique no mapa, no lugar exato onde ele deve nascer
+
+     Pronto: a linha aparece na tabela ja com o nome no comentario.
+     Continue clicando para colocar varios do mesmo monstro.
+     Os campos Qtd e Raio ao lado valem para as linhas novas
+     (a Qtd so e usada nas secoes de spot).
+
+     Enquanto o mouse anda no mapa, embaixo aparece a coordenada e o
+     monstro que o clique vai colocar. Se a celula for parede, ele
+     coloca mesmo assim e avisa - as vezes e de proposito (NPC).
+
+  PELA JANELA (quando quiser digitar tudo)
+  Ctrl+N ... Adicionar monstro / spot
+             tabela com o monstro (lista do Monster.txt), o mapa, a
+             posicao, o raio e a quantidade. Ela avisa na hora se a
+             celula escolhida e parede ou zona segura.
+
+  Ctrl+M ... Criar monstro novo no Monster.txt
+             tabela com os 28 campos (vida, dano, defesa, resistencias...),
+             ja com valores de partida e o primeiro numero livre.
+
+  Ctrl+E ... Trocar o monstro da linha por outro da lista
+
+  Ctrl+Shift+N ... copia a linha selecionada
+  Ctrl+Delete .... remove a linha
+
+
+CRIAR A SECAO DE UM MAPA (comecar do zero)
+  Editar > Criar secao de um mapa...   (Ctrl+K)
+
+  Escolha a secao (NPC, spot, monstro solto...) e o mapa. O mapa passa
+  a aparecer na arvore com (0) em cinza, mesmo sem nenhuma linha.
+
+  Dai e so escolher o monstro na lista e ir clicando no mapa.
+
+  Serve para mapa que nunca teve nada e tambem depois de uma limpeza:
+  ao remover em massa SO DE UM MAPA, o mapa continua na arvore com (0),
+  esperando voce encher de novo. Limpando o arquivo inteiro, ai sim as
+  secoes vazias somem.
+
+
+REMOVER EM MASSA
+  Editar > Remover em massa
+
+  Sao quatro acoes separadas, cada uma mexe so na sua secao:
+     Remover todos os SPOTS ............. secao 1
+     Remover todos os MONSTROS soltos ... secao 2
+     Remover todos os NPCs .............. secao 0
+     Remover todos os GOLDEN/Bone King .. secao 3
+
+  Cada uma abre uma janela mostrando quantas linhas seriam apagadas no
+  mapa da tela e no arquivo inteiro, e voce escolhe o alcance:
+     "So o mapa <nome>"   -> limpa so aquele mapa
+     "O arquivo inteiro"  -> limpa a secao toda
+
+  Nada e salvo na hora: confira o resultado e use Ctrl+S. Se apagou
+  errado, use Ferramentas > Recarregar do disco (F6) e nada se perde.
+
+
+A LISTA DE MONSTROS SEGUE O MAPA
+  Ao escolher um mapa na arvore, a lista MONSTROS ja mostra o que nasce
+  ali, com a quantidade entre parenteses:
+
+     138  King Orc     (60)
+
+  A caixinha "so os de <mapa>" deixa so esses na lista, que e o jeito
+  rapido de colocar mais do mesmo bicho. Desmarque para ver todos os
+  monstros do Monster.txt.
+
+
+CONFERENCIA (F5)
+  - monstro que nao existe no Monster.txt
+  - coordenada fora do mapa
+  - monstro solto em cima de parede
+  - spot com pouco chao livre (o monstro pode nao nascer)
+  - spot com quantidade zerada
+  - total de objetos contra o limite do GameServer (OBJ_MAXMONSTER)
+
+  Clique duplo no aviso pula para a linha.
+
+  O contador embaixo e o mais importante: passar do limite nao da erro
+  nenhum no servidor, o monstro simplesmente nao nasce.
+
+
+ORGANIZAR
+  Ferramentas > Organizar arquivo atual
+  Reescreve o arquivo agrupando por secao e por mapa, ordenando por
+  monstro e preenchendo o comentario de cada linha com o nome dele.
+  Os cabecalhos soltos viram um padrao. Confira antes de salvar.
+
+
+SALVAR
+  Ctrl+S ......... salva o arquivo atual
+  Ctrl+Shift+S ... salva todos
+
+  Os arquivos sao gravados em cp1252 com quebra de linha do Windows,
+  igual o GameServer espera. Depois de salvar, o servidor so pega as
+  mudancas quando reiniciar (ou pelo menu Event Load dele, nos casos
+  que tem recarga).

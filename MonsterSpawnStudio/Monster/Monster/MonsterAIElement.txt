@@ -1,0 +1,86 @@
+//----------------------------------------------------\\
+//             Powered By : Layane Martins	      \\
+//             ( LayaneMartins@live.com )	      \\
+//----------------------------------------------------\\
+
+//Information: Monster AI Element
+											
+//Number	Desc	State Class	Type	Rate	DelayTime(ms)	Target Type	X	Y
+0								
+
+
+1	"Normal01"	0	1	100	1000	-1	-1	-1
+2	"MoveDest01"	1	12	100	1000	2	121	36
+3	"TestAttack"	2	21	100	300	2	-1	-1
+4	"Avoid-Flee"	4	41	100	300	2	-1	-1
+5	"SelfHeal"	3	31	100	300	2	-1	-1
+
+
+6	"GroupSummon"	6	62	100	300	2	-1	-1
+7	"GroupHeal"	3	32	100	300	2	-1	-1
+8	"GroupMove"	1	13	100	300	2	-1	-1
+9	"AttackPos"	2	22	100	300	2	121	36
+
+// Estagios 1,2,3: ponto alvo do 1o ataque de cada grupo								
+11	"1MoveDest1-1"	1	12	100	1000	2	128	45
+12	"1MoveDest1-2"	1	12	100	1000	2	109	42
+13	"1MoveDest1-3"	1	12	100	1000	2	123	84
+14	"1MoveDest1-4"	1	12	100	1000	2	119	87
+15	"1MoveDest2-1"	1	12	100	1000	2	105	32
+16	"1MoveDest2-2"	1	12	100	1000	2	89	32
+17	"1MoveDest2-3"	1	12	100	1000	2	83	29
+18	"1MoveDest2-4"	1	12	100	1000	2	65	34
+19	"1MoveDest3-1"	1	12	100	1000	2	136	38
+20	"1MoveDest3-2"	1	12	100	1000	2	134	19
+21	"1MoveDest3-3"	1	12	100	1000	2	177	37
+22	"1MoveDest3-4"	1	12	100	1000	2	179	33
+// Estagios 1,2,3: ponto alvo do 2o ataque de cada grupo								
+31	"1MoveDest1-1"	1	12	100	1000	2	126	35
+32	"1MoveDest1-2"	1	12	100	1000	2	125	27		
+33	"1MoveDest1-3"	1	12	100	1000	2	121	19		
+34	"1MoveDest1-4"	1	12	100	1000	2	119	87		
+35	"1MoveDest2-1"	1	12	100	1000	2	120	38		
+36	"1MoveDest2-2"	1	12	100	1000	2	115	32		
+37	"1MoveDest2-3"	1	12	100	1000	2	109	40		
+38	"1MoveDest2-4"	1	12	100	1000	2	65	34		
+39	"1MoveDest3-1"	1	12	100	1000	2	117	27		
+40	"1MoveDest3-2"	1	12	100	1000	2	117	37		
+41	"1MoveDest3-3"	1	12	100	1000	2	131	31		
+42	"1MoveDest3-4"	1	12	100	1000	2	179	33		
+
+51	"1-1AttackPos"	2	22	100	300	2	121	52		// ataca a entrada do portao norte
+52	"1-2AttackPos"	2	22	100	300	2	120	35		// posicao de ataque padrao
+53	"2-1AttackPos"	2	22	100	300	2	101	31		// ataca a entrada do portao oeste
+51	"2-2AttackPos"	2	22	100	300	2	117	31		// posicao de ataque padrao
+52	"3-1AttackPos"	2	22	100	300	2	141	32		// ataca a entrada do portao leste
+53	"3-2AttackPos"	2	22	100	300	2	125	31		// posicao de ataque padrao
+54	"4-1AttackPos"	2	22	100	300	2	117	31		// posicao de ataque padrao
+55	"4-2AttackPos"	2	22	100	300	2	141	32		// ataca a entrada do portao leste
+56	"5-1AttackPos"	2	22	100	300	2	125	31		// posicao de ataque padrao
+
+// Kanturu - Maos da Maya
+60	"Invincible"			6	64	100	1000	-1	-1	-1
+61	"NormalAttack"		2	21	100	1000	1	-1	-1
+62	"FastAttack"		2	21	100	800	1	-1	-1
+63	"VeryFastAttack"		2	21	100	100	1	-1	-1
+64	"SkillSpam"		2	23	100	300	1	-1	-1		// Class e Type precisam de ajuste
+65	"NormalMove"		1	11	100	100	1	-1	-1
+
+// Nightmare
+//Number Desc		State Class	Type	Rate	DelayTime(ms)	Target Type	X	Y
+66  "NightmareInvincible"	6		64	100	1000		-1		2	2
+67  "NormalMove"		1		11	100	100		1		-1	-1
+68  "NormalAttack"		2		21	100	1000		1		-1	-1
+69  "Summon"		6		65	100	1000		1		-1	-1
+70  "Warp1"		6		66	100	1000		1		79	100
+71  "Warp2"		6		66	100	1000		1		78	124
+72  "Warp3"		6		66	100	1000		1		78	141
+73  "AttackPattern1"		2		67	100	1000		60		40	0
+74  "AttackPattern2"		2		67	100	1000		40		60	0
+75  "AttackPattern3"		2		67	100	1000		30		30	40
+76  "AttackPattern4"		2		67	100	1000		30		20	50
+77  "AIChange1"		7		68      100     1000            23          	1 	-1
+78  "AIChange2"		7		68      100     1000            23          	2  	-1
+79  "AIChange3"		7		68      100     1000            23          	3  	-1
+
+end
