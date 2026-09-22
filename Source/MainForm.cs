@@ -1378,7 +1378,7 @@ public class MainForm : Form
 					Add(a, b, l, $"ERRO  {a.NomeCurto}: monstro {mob} nao existe no Monster.txt");
 
 				if (mapa >= 0 && (mapa < 0 || mapa >= Dados.NomeMapa.Length))
-					Add(a, b, l, $"ERRO  {a.NomeCurto}: mapa {mapa} fora da faixa 0-39");
+					Add(a, b, l, $"ERRO  {a.NomeCurto}: mapa {mapa} fora da faixa 0-{Dados.NomeMapa.Length - 1} (97K suporta 0 a 16)");
 
 				if (ix.x < 0) continue;
 				int x = l.Num(ix.x), y = l.Num(ix.y);
