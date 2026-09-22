@@ -1,0 +1,13 @@
+## Build and intermediate files
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio / VS Code
+.vs/
+*.user
+*.suo
+.vscode/
+
+## Temporary files
+*.log
+*.tmp
