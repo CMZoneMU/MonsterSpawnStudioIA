@@ -29,10 +29,85 @@ public static class Dados
 		"Blood Castle 5", "Blood Castle 6"
 	};
 
-	// mapa do servidor -> pasta World do cliente (World = mapa + 1)
-	public static string PastaWorld(int mapa) => "World" + (mapa + 1);
+	// Update SSeMU 92 2.4.9 -> 97K SSeMU Update 93 (2.4.9) - Suporte a mapas dinamicos do cliente e reconhecimento automatico
+	static readonly SortedDictionary<int, string> s_mapasCadastrados = new();
 
-	public static string Mapa(int m) => m >= 0 && m < NomeMapa.Length ? NomeMapa[m] : "Mapa " + m;
+	static Dados()
+	{
+		InicializarMapas();
+	}
+
+	public static void InicializarMapas()
+	{
+		s_mapasCadastrados.Clear();
+		for (int i = 0; i < NomeMapa.Length; i++)
+		{
+			s_mapasCadastrados[i] = NomeMapa[i];
+		}
+	}
+
+	public static void DescobrirMapasCliente(string pastaCliente)
+	{
+		if (s_mapasCadastrados.Count == 0) InicializarMapas();
+		if (string.IsNullOrEmpty(pastaCliente) || !Directory.Exists(pastaCliente)) return;
+
+		try
+		{
+			var dirs = Directory.GetDirectories(pastaCliente, "World*", SearchOption.TopDirectoryOnly);
+			foreach (var dir in dirs)
+			{
+				var nomeDir = Path.GetFileName(dir);
+				if (nomeDir.Length > 5 && int.TryParse(nomeDir.Substring(5), out int numWorld) && numWorld >= 1)
+				{
+					int idMapa = numWorld - 1;
+					if (!s_mapasCadastrados.ContainsKey(idMapa))
+					{
+						s_mapasCadastrados[idMapa] = $"Mapa {idMapa} ({nomeDir})";
+					}
+				}
+			}
+		}
+		catch { }
+	}
+
+	public static void RegistrarNomeMapa(int mapa, string nome)
+	{
+		if (s_mapasCadastrados.Count == 0) InicializarMapas();
+		if (mapa >= 0 && !string.IsNullOrWhiteSpace(nome))
+		{
+			s_mapasCadastrados[mapa] = nome.Trim();
+		}
+	}
+
+	public static bool ExisteMapa(int mapa)
+	{
+		if (s_mapasCadastrados.Count == 0) InicializarMapas();
+		return s_mapasCadastrados.ContainsKey(mapa);
+	}
+
+	public static List<(int Id, string Nome)> ListaMapas()
+	{
+		if (s_mapasCadastrados.Count == 0) InicializarMapas();
+		return s_mapasCadastrados.Select(kv => (kv.Key, kv.Value)).ToList();
+	}
+
+	// mapa do servidor -> pasta World do cliente (World = mapa + 1, com Blood Castle 1..6 usando World12 se nao houver World individual)
+	public static string PastaWorld(int mapa)
+	{
+		if (mapa >= 11 && mapa <= 16)
+		{
+			if (string.IsNullOrEmpty(PastaCliente) || !Directory.Exists(Path.Combine(PastaCliente, "World" + (mapa + 1))))
+				return "World12";
+		}
+		return "World" + (mapa + 1);
+	}
+
+	public static string Mapa(int m)
+	{
+		if (s_mapasCadastrados.TryGetValue(m, out var nome)) return nome;
+		if (m >= 0 && m < NomeMapa.Length) return NomeMapa[m];
+		return "Mapa " + m;
+	}
 
 	public static string Monstro(int id) => Monstros.TryGetValue(id, out var n) ? n : "?";
 
@@ -189,6 +264,11 @@ public static class Dados
 					Path.Combine(pastaW, $"EncTerrain{mapa}.att")
 				};
 				p = candidatosCli.FirstOrDefault(File.Exists);
+				if (p == null)
+				{
+					var atts = Directory.GetFiles(pastaW, "*.att");
+					if (atts.Length > 0) p = atts[0];
+				}
 			}
 		}
 
@@ -238,6 +318,11 @@ public static class Dados
 			var n = Path.GetFileNameWithoutExtension(f).ToLowerInvariant();
 			if (n.Contains("map")) { arq = f; break; }
 		}
+		if (arq == null)
+		{
+			var ozjs = Directory.GetFiles(pasta, "*.ozj");
+			if (ozjs.Length > 0) arq = ozjs[0];
+		}
 		if (arq == null) return null;
 
 		try
@@ -261,5 +346,8 @@ public static class Dados
 		s_terreno.Clear();
 		foreach (var b in s_minimapa.Values) b?.Dispose();
 		s_minimapa.Clear();
+		InicializarMapas();
+		if (!string.IsNullOrEmpty(PastaCliente))
+			DescobrirMapasCliente(PastaCliente);
 	}
 }

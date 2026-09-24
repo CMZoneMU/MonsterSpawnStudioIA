@@ -406,8 +406,10 @@ public class MainForm : Form
 		using var d = new FolderBrowserDialog { Description = "Aponte para a pasta Data do CLIENTE (a que tem as pastas World1, World2...)" };
 		if (Dados.PastaCliente != "") d.SelectedPath = Dados.PastaCliente;
 		if (d.ShowDialog(this) != DialogResult.OK) return;
-		Dados.PastaCliente = d.SelectedPath;
+		var norm = NormalizarPastaMapas(d.SelectedPath);
+		Dados.PastaCliente = string.IsNullOrEmpty(norm) ? d.SelectedPath : norm;
 		Dados.Limpar();
+		Dados.DescobrirMapasCliente(Dados.PastaCliente);
 		var atual = m_mapa.MapaAtual;
 		m_mapa.DefinirMapa(-1);
 		m_mapa.DefinirMapa(atual);
@@ -478,7 +480,16 @@ public class MainForm : Form
 		{
 			foreach (var f in Directory.GetFiles(pastaSpawn, "*.txt").OrderBy(x => x))
 			{
-				m_arquivos.Add(ArquivoSpawn.Abrir(f, TipoArquivo.SSeMUSpawn));
+				var arq = ArquivoSpawn.Abrir(f, TipoArquivo.SSeMUSpawn);
+				m_arquivos.Add(arq);
+				if (arq.MapaFixo >= 0)
+				{
+					var nomeSemExt = Path.GetFileNameWithoutExtension(f);
+					var idxTraco = nomeSemExt.IndexOf('-');
+					var nomeMapa = idxTraco >= 0 ? nomeSemExt.Substring(idxTraco + 1).Trim() : nomeSemExt;
+					if (!string.IsNullOrEmpty(nomeMapa))
+						Dados.RegistrarNomeMapa(arq.MapaFixo, nomeMapa);
+				}
 			}
 
 			if (arqMonstros != null)
@@ -1377,8 +1388,8 @@ public class MainForm : Form
 				if (Dados.Monstros.Count > 0 && !Dados.Monstros.ContainsKey(mob))
 					Add(a, b, l, $"ERRO  {a.NomeCurto}: monstro {mob} nao existe no Monster.txt");
 
-				if (mapa >= 0 && (mapa < 0 || mapa >= Dados.NomeMapa.Length))
-					Add(a, b, l, $"ERRO  {a.NomeCurto}: mapa {mapa} fora da faixa 0-{Dados.NomeMapa.Length - 1} (97K suporta 0 a 16)");
+				if (mapa >= 0 && !Dados.ExisteMapa(mapa))
+					Add(a, b, l, $"ERRO  {a.NomeCurto}: mapa {mapa} nao reconhecido (nao encontrado na pasta de mapas do cliente)");
 
 				if (ix.x < 0) continue;
 				int x = l.Num(ix.x), y = l.Num(ix.y);
@@ -1525,33 +1536,142 @@ public class MainForm : Form
 	}
 
 	// ==================================================================  config
+	// Update SSeMU 92 2.4.9 -> 97K SSeMU Update 93 (2.4.9) - Auto-reconhecimento obrigatorio de mapas do cliente
+	string ResolverPastaMapasCliente(string configurado)
+	{
+		if (!string.IsNullOrWhiteSpace(configurado))
+		{
+			var norm = NormalizarPastaMapas(configurado);
+			if (!string.IsNullOrEmpty(norm)) return norm;
+		}
+
+		string baseDir = AppContext.BaseDirectory;
+		string[] candidatos =
+		{
+			Path.Combine(baseDir, "Arquivos", "Mapas - Cliente", "Data"),
+			Path.Combine(baseDir, "3 - Arquivos", "Mapas - Cliente", "Data"),
+			Path.Combine(baseDir, "3 - Mapas - Cliente", "Data"),
+			Path.Combine(baseDir, "Mapas - Cliente", "Data"),
+			Path.Combine(baseDir, "Arquivos", "Mapas - Cliente"),
+			Path.Combine(baseDir, "3 - Mapas - Cliente"),
+			Path.Combine(baseDir, "Arquivos SSeMUe MuEmu", "Client", "Data"),
+			Path.Combine(baseDir, "Data"),
+			Path.Combine(baseDir, "..", "Arquivos", "Mapas - Cliente", "Data"),
+			Path.Combine(baseDir, "..", "3 - Mapas - Cliente", "Data"),
+			Path.Combine(baseDir, "..", "3 - Arquivos", "Mapas - Cliente", "Data"),
+			Path.Combine(baseDir, "..", "Arquivos SSeMUe MuEmu", "Client", "Data"),
+			Path.Combine(baseDir, "..", "..", "..", "Arquivos SSeMUe MuEmu", "Client", "Data")
+		};
+
+		foreach (var c in candidatos)
+		{
+			try
+			{
+				string full = Path.GetFullPath(c);
+				var norm = NormalizarPastaMapas(full);
+				if (!string.IsNullOrEmpty(norm)) return norm;
+			}
+			catch { }
+		}
+
+		return "";
+	}
+
+	static string NormalizarPastaMapas(string caminho)
+	{
+		if (string.IsNullOrWhiteSpace(caminho) || !Directory.Exists(caminho)) return "";
+
+		// Verifica se a pasta atual contem subpastas World*
+		if (Directory.GetDirectories(caminho, "World*", SearchOption.TopDirectoryOnly).Length > 0)
+			return caminho;
+
+		// Se contem subpasta Data com World*
+		var subData = Path.Combine(caminho, "Data");
+		if (Directory.Exists(subData) && Directory.GetDirectories(subData, "World*", SearchOption.TopDirectoryOnly).Length > 0)
+			return subData;
+
+		return "";
+	}
+
+	void GarantirPastaMapasCliente(string configurado = "")
+	{
+		string resolvida = ResolverPastaMapasCliente(configurado);
+		if (!string.IsNullOrEmpty(resolvida))
+		{
+			Dados.PastaCliente = resolvida;
+			Dados.DescobrirMapasCliente(resolvida);
+			return;
+		}
+
+		MessageBox.Show(this,
+			"A pasta de Mapas do Cliente e obrigatoria para o funcionamento do MonsterSpawn Studio!\n\n" +
+			"Estrutura esperada: Arquivos\\Mapas - Cliente\\Data\\ (contendo World1, World2...)\n\n" +
+			"Por favor, aponte a pasta Data dos mapas a seguir.",
+			"Pasta de Mapas Obrigatoria",
+			MessageBoxButtons.OK,
+			MessageBoxIcon.Warning);
+
+		while (string.IsNullOrEmpty(Dados.PastaCliente) || string.IsNullOrEmpty(NormalizarPastaMapas(Dados.PastaCliente)))
+		{
+			using var d = new FolderBrowserDialog
+			{
+				Description = "Selecione a pasta Data contendo as pastas World1, World2... (Mapas - Cliente\\Data)"
+			};
+
+			if (d.ShowDialog(this) == DialogResult.OK)
+			{
+				var norm = NormalizarPastaMapas(d.SelectedPath);
+				if (!string.IsNullOrEmpty(norm))
+				{
+					Dados.PastaCliente = norm;
+					Dados.DescobrirMapasCliente(norm);
+					GravarConfig();
+					break;
+				}
+			}
+
+			var r = MessageBox.Show(this,
+				"A pasta selecionada nao contem as pastas de mapas (World1, World2...).\n\n" +
+				"Deseja tentar novamente?",
+				"Pasta Invalida",
+				MessageBoxButtons.RetryCancel,
+				MessageBoxIcon.Error);
+
+			if (r == DialogResult.Cancel) break;
+		}
+	}
+
 	void CarregarConfig()
 	{
 		try
 		{
-			if (!File.Exists(ArquivoConfig)) return;
-
 			string servidor = "", cliente = "";
-			foreach (var l in File.ReadAllLines(ArquivoConfig, Encoding.UTF8))
+			if (File.Exists(ArquivoConfig))
 			{
-				var i = l.IndexOf('=');
-				if (i < 0) continue;
-				var chave = l.Substring(0, i).Trim();
-				var valor = l.Substring(i + 1).Trim();
-				if (chave == "Servidor") servidor = valor;
-				if (chave == "Cliente") cliente = valor;
-				if (chave == "Estrutura")
+				foreach (var l in File.ReadAllLines(ArquivoConfig, Encoding.UTF8))
 				{
-					if (Enum.TryParse<ModoServidor>(valor, true, out var m))
-						m_modoServidor = m;
+					var i = l.IndexOf('=');
+					if (i < 0) continue;
+					var chave = l.Substring(0, i).Trim();
+					var valor = l.Substring(i + 1).Trim();
+					if (chave == "Servidor") servidor = valor;
+					if (chave == "Cliente") cliente = valor;
+					if (chave == "Estrutura")
+					{
+						if (Enum.TryParse<ModoServidor>(valor, true, out var m))
+							m_modoServidor = m;
+					}
 				}
 			}
 
 			AtualizarMenuModoServidor();
 
-			// o cliente primeiro: a pasta do servidor ja manda desenhar o mapa
-			if (Directory.Exists(cliente)) Dados.PastaCliente = cliente;
-			if (Directory.Exists(servidor)) CarregarPasta(servidor);
+			// Resolve obrigatoriamente a pasta de mapas do cliente antes de carregar o servidor
+			GarantirPastaMapasCliente(cliente);
+
+			// Carrega a pasta do servidor
+			if (!string.IsNullOrEmpty(servidor) && Directory.Exists(servidor))
+				CarregarPasta(servidor);
 		}
 		catch { }
 	}
