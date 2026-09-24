@@ -227,8 +227,15 @@ public static class NovaSecaoMapa
 		cbSecao.SelectedIndex = Math.Max(0, Array.FindIndex(secoes, s => s.Item1 == secaoAtual));
 
 		var cbMapa = new ComboBox { Left = 130, Top = 56, Width = 270, DropDownStyle = ComboBoxStyle.DropDownList, BackColor = Estilo.Painel, ForeColor = Estilo.Texto };
-		for (int m = 0; m < Dados.NomeMapa.Length; m++) cbMapa.Items.Add($"{m} - {Dados.NomeMapa[m]}");
-		cbMapa.SelectedIndex = Math.Clamp(mapaAtual < 0 ? 0 : mapaAtual, 0, Dados.NomeMapa.Length - 1);
+		var listaMapas = Dados.ListaMapas();
+		int idxSel = 0;
+		for (int i = 0; i < listaMapas.Count; i++)
+		{
+			var (id, nome) = listaMapas[i];
+			cbMapa.Items.Add($"{id} - {nome}");
+			if (id == mapaAtual) idxSel = i;
+		}
+		if (cbMapa.Items.Count > 0) cbMapa.SelectedIndex = idxSel;
 
 		var dica = new Label
 		{
@@ -240,7 +247,13 @@ public static class NovaSecaoMapa
 		var cancelar = Estilo.Botao("Cancelar", 310, 148);
 
 		int rs = -1, rm = -1;
-		ok.Click += (_, _) => { rs = secoes[cbSecao.SelectedIndex].Item1; rm = cbMapa.SelectedIndex; f.DialogResult = DialogResult.OK; f.Close(); };
+		ok.Click += (_, _) =>
+		{
+			rs = secoes[cbSecao.SelectedIndex].Item1;
+			rm = cbMapa.SelectedIndex >= 0 && cbMapa.SelectedIndex < listaMapas.Count ? listaMapas[cbMapa.SelectedIndex].Id : 0;
+			f.DialogResult = DialogResult.OK;
+			f.Close();
+		};
 		cancelar.Click += (_, _) => { f.DialogResult = DialogResult.Cancel; f.Close(); };
 
 		f.Controls.AddRange(new Control[] { Estilo.Rotulo("Secao", 16, 16), cbSecao,
@@ -325,8 +338,16 @@ public static class NovoSpawn
 
 		y += 34;
 		var cbMapa = new ComboBox { Left = 130, Top = y, Width = 400, DropDownStyle = ComboBoxStyle.DropDownList, BackColor = Estilo.Painel, ForeColor = Estilo.Texto };
-		for (int m = 0; m < Dados.NomeMapa.Length; m++) cbMapa.Items.Add($"{m} - {Dados.NomeMapa[m]}");
-		cbMapa.SelectedIndex = Math.Clamp(mapa, 0, Dados.NomeMapa.Length - 1);
+		var listaMapas = Dados.ListaMapas();
+		int idxSel = 0;
+		for (int i = 0; i < listaMapas.Count; i++)
+		{
+			var (id, nome) = listaMapas[i];
+			cbMapa.Items.Add($"{id} - {nome}");
+			if (id == mapa) idxSel = i;
+		}
+		if (cbMapa.Items.Count > 0) cbMapa.SelectedIndex = idxSel;
+		if (arq.Tipo == TipoArquivo.SSeMUSpawn) cbMapa.Enabled = false;
 		f.Controls.Add(Estilo.Rotulo("Mapa", 16, y));
 		f.Controls.Add(cbMapa);
 
@@ -373,7 +394,7 @@ public static class NovoSpawn
 		void Conferir()
 		{
 			if (!int.TryParse(tX.Text, out var px) || !int.TryParse(tY.Text, out var py)) { aviso.Text = ""; return; }
-			var m = cbMapa.SelectedIndex;
+			var m = cbMapa.SelectedIndex >= 0 && cbMapa.SelectedIndex < listaMapas.Count ? listaMapas[cbMapa.SelectedIndex].Id : 0;
 			aviso.Text = Dados.Parede(m, px, py)
 				? "Atencao: essa celula e bloqueada no terreno do servidor."
 				: (Dados.ZonaSegura(m, px, py) ? "Atencao: essa celula e zona segura." : "");
@@ -403,6 +424,7 @@ public static class NovoSpawn
 			int px = int.TryParse(tX.Text, out var vx) ? vx : 0;
 			int py = int.TryParse(tY.Text, out var vy) ? vy : 0;
 			int d = int.TryParse(tDir.Text, out var vd) ? vd : -1;
+			int idMapaEscolhido = cbMapa.SelectedIndex >= 0 && cbMapa.SelectedIndex < listaMapas.Count ? listaMapas[cbMapa.SelectedIndex].Id : 0;
 
 			if (arq.Tipo == TipoArquivo.SSeMUSpawn)
 			{
@@ -425,7 +447,7 @@ public static class NovoSpawn
 			else
 			{
 				nova.SetNum(ix.mob, mob);
-				if (ix.mapa >= 0) nova.SetNum(ix.mapa, cbMapa.SelectedIndex);
+				if (ix.mapa >= 0) nova.SetNum(ix.mapa, idMapaEscolhido);
 				nova.SetNum(2 + (ehKanturu ? 1 : 0), r);
 				nova.SetNum(ix.x, px);
 				nova.SetNum(ix.y, py);
